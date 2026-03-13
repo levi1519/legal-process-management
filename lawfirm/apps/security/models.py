@@ -61,7 +61,6 @@ class User(AbstractUser):
             models.Index(fields=['ci'], name='idx_user_ci'),
         ]
 
-    @property
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'.strip()
 
@@ -69,7 +68,8 @@ class User(AbstractUser):
         return self.groups.all()
 
     def __str__(self):
-        return f'{self.username} - {self.get_full_name or self.email}'
+        full_name = self.get_full_name()
+        return f'{self.username} - {full_name or self.email}'
 
     def save(self, *args, **kwargs):
         # Django ya maneja el hashing en create_user, createsuperuser 
