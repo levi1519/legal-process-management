@@ -24,4 +24,7 @@ urlpatterns = [
     path('', include('apps.core.urls', namespace='core')),
     path('penalcode/', include('apps.penalcode.urls', namespace='penalcode')),
     path('security/', include('apps.security.urls', namespace='security')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
