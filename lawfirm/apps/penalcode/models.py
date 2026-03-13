@@ -1,166 +1,134 @@
 """
 models.py — Módulo Penal (COIP)
 Sistema de Gestión Legal — Ecuador
-
-IMPORTANTE: Configura en settings.py:
-    AUTH_USER_MODEL = 'tu_app.Abogado'
 """
-
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import Q
-
-
-# =============================================================================
-# MODELO DE USUARIO PERSONALIZADO
-# =============================================================================
-
-class Abogado(AbstractUser):
-    telefono = models.CharField(max_length=20, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'abogado'
-        verbose_name = 'Abogado'
-        verbose_name_plural = 'Abogados'
-
-    def __str__(self) -> str:
-        return f"{self.first_name} {self.last_name}".strip() or self.username
-
-
-# =============================================================================
-# GEOGRAFÍA
-# =============================================================================
-
-class Region(models.Model):
-    region_id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-
-    class Meta:
-        db_table = 'region'
-        verbose_name = 'Región'
-        verbose_name_plural = 'Regiones'
-
-    def __str__(self) -> str:
-        return self.nombre
-
-
-class Provincia(models.Model):
-    provincia_id = models.AutoField(primary_key=True)
-    region = models.ForeignKey(
-        Region,
-        on_delete=models.CASCADE,
-        db_column='region_id',
-        related_name='provincias',
-    )
-    nombre = models.CharField(max_length=100)
-
-    class Meta:
-        db_table = 'provincia'
-        verbose_name = 'Provincia'
-        verbose_name_plural = 'Provincias'
-
-    def __str__(self) -> str:
-        return self.nombre
-
-
-class Ciudad(models.Model):
-    ciudad_id = models.AutoField(primary_key=True)  # Corregido: id_ciudad -> ciudad_id
-    provincia = models.ForeignKey(
-        Provincia,
-        on_delete=models.CASCADE,
-        db_column='provincia_id',
-        related_name='ciudades',
-    )
-    nombre = models.CharField(max_length=100)
-
-    class Meta:
-        db_table = 'ciudad'
-        verbose_name = 'Ciudad'
-        verbose_name_plural = 'Ciudades'
-
-    def __str__(self) -> str:
-        return self.nombre
-
+from apps.core.models import ModelBase, Ciudad
+from apps.security.models import User
 
 # =============================================================================
 # CATÁLOGOS
 # =============================================================================
-
-class TipoDelito(models.Model):
-    tipodelito_id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=200)
-    articulo_coip = models.CharField(max_length=50)  # Corregido: obligatorio
-    accion_tipo = models.CharField(max_length=100, blank=True)
-    plazo_dias_investigacion = models.PositiveIntegerField(null=True, blank=True)
-    plazo_instruccion_dias = models.PositiveIntegerField(null=True, blank=True)
+class TipoDelito(ModelBase):
+    ACCION_TIPO_CHOICE = (
+        ('publica', 'Pública'),
+        ('privada', 'Privada'),
+    )
+     
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField('Nombre', max_length=200, unique=True)
+    articulo_coip = models.CharField('Artículo COIP', max_length=50, unique=True)
+    accion_tipo = models.CharField('Tipo de Acción', max_length=100, blank=True, choices=ACCION_TIPO_CHOICE)
+    plazo_dias_investigacion = models.PositiveIntegerField('Plazo Días Investigación', null=True, blank=True)
+    plazo_instruccion_dias = models.PositiveIntegerField('Plazo Días Instruccion', null=True, blank=True)
 
     class Meta:
-        db_table = 'tipodelito'
         verbose_name = 'Tipo de Delito'
         verbose_name_plural = 'Tipos de Delito'
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_tipodelito_nombre'),
+            models.Index(fields=['articulo_coip'], name='idx_tipodelito_articulo_coip'),
+        ]
 
     def __str__(self) -> str:
         return f"{self.nombre} (Art. {self.articulo_coip})"
 
 
-class TipoProcedimiento(models.Model):
-    tipoprocedimiento_id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=200)
-    accion = models.CharField(max_length=200, blank=True)
-    tipo_accion = models.CharField(
-        max_length=10,
-        choices=[('publica', 'Pública'), ('privada', 'Privada')],
-        default='publica',
-    )
+class TipoProcedimiento(ModelBase):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField('Nombre', max_length=200, unique=True)
+    accion = models.CharField('Acción', max_length=200, blank=True)
+    tipo_accion = models.CharField('Tipo de Acción', max_length=10, choices=[('publica', 'Pública'), ('privada', 'Privada')], default='publica')
+
+    def __str__(self):
+        return f'Tipo de Procedimiento: {self.nombre}'
 
     class Meta:
-        db_table = 'tipoprocedimiento'
         verbose_name = 'Tipo de Procedimiento'
         verbose_name_plural = 'Tipos de Procedimiento'
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_tipoprocedimiento_nombre'),
+        ]
 
-    def __str__(self) -> str:
-        return self.nombre
 
+class RolProcesal(ModelBase):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField('Nombre', max_length=200, unique=True)
 
-class RolProcesal(models.Model):  # Corregido: Procesar -> Procesal
-    rolprocesal_id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
+    def __str__(self):
+        return f'Rol Procesal: {self.nombre}'
 
     class Meta:
-        db_table = 'rolprocesal'
         verbose_name = 'Rol Procesal'
         verbose_name_plural = 'Roles Procesales'
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_rolprocesal_nombre'),
+        ]
 
-    def __str__(self) -> str:
-        return self.nombre
 
+class CategoriaEvidencia(ModelBase):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField('Nombre', max_length=200, unique=True)
 
-class CategoriaEvidencia(models.Model):
-    categoriaevidencia_id = models.AutoField(primary_key=True)  # Corregido el typo
-    nombre = models.CharField(max_length=100)
+    def __str__(self):
+        return f'Categoria Evidencia: {self.nombre}'
 
     class Meta:
-        db_table = 'categoriaevidencia'
         verbose_name = 'Categoría de Evidencia'
         verbose_name_plural = 'Categorías de Evidencia'
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_categoriaevidencia_nombre'),
+        ]
 
-    def __str__(self) -> str:
-        return self.nombre
+
+class RolExpediente(ModelBase):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField('Nombre', max_length=200, unique=True)
+
+    def __str__(self):
+        return f'Rol de Expediente: {self.nombre}'
+
+    class Meta:
+        verbose_name = 'Rol de Expediente'
+        verbose_name_plural = 'Roles de Expediente'
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_rolexpediente_nombre'),
+        ]
+
+
+class TipoEscrito(ModelBase):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField('Nombre', max_length=200, unique=True)
+
+    def __str__(self):
+        return f'Tipo de Escrito: {self.nombre}'
+
+    class Meta:
+        verbose_name = 'Tipo de Escrito'
+        verbose_name_plural = 'Tipos de Escrito'
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_tipoescrito_nombre'),
+        ]
 
 
 # =============================================================================
 # CLIENTE
 # =============================================================================
 
-class Cliente(models.Model):
-    cliente_id = models.AutoField(primary_key=True)
+class Cliente(ModelBase):
+    id = models.AutoField(primary_key=True)
     ciudad = models.ForeignKey(
         Ciudad,
         on_delete=models.PROTECT,  # Corregido: Obligatorio por jurisdicción
         db_column='ciudad_id',
         related_name='clientes',
+        verbose_name='Ciudad'
     )
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
@@ -168,24 +136,30 @@ class Cliente(models.Model):
     email = models.EmailField(blank=True)
     telefono = models.CharField(max_length=20, blank=True)
     direccion = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def get_full_name(self):
+        return f'{self.nombre} {self.apellido}'.strip()
+
+    def __str__(self):
+        return f'Cliente: {self.get_full_name} - {self.cedula}'
 
     class Meta:
-        db_table = 'cliente'
         verbose_name = 'Cliente'
         verbose_name_plural = 'Clientes'
-
-    def __str__(self) -> str:
-        return f"{self.nombre} {self.apellido} — {self.cedula}"
+        ordering = ['nombre']
+        indexes = [
+            models.Index(fields=['nombre'], name='idx_cliente_nombre'),
+            models.Index(fields=['apellido'], name='idx_cliente_apellido'),
+            models.Index(fields=['cedula'], name='idx_cliente_cedula'),
+        ]
 
 
 # =============================================================================
 # EXPEDIENTE PENAL
 # =============================================================================
 
-class ExpedientePenal(models.Model):
-
+class ExpedientePenal(ModelBase):
     class EstadoExpediente(models.TextChoices):
         DENUNCIA = 'denuncia', 'Denuncia'
         INDAGACION_PREVIA = 'indagacion_previa', 'Indagación Previa'
@@ -196,13 +170,14 @@ class ExpedientePenal(models.Model):
         ARCHIVADO = 'archivado', 'Archivado'
         ABANDONADO = 'abandonado', 'Abandonado'
         PRESCRITO = 'prescrito', 'Prescrito'
-
-    expedientepenal_id = models.AutoField(primary_key=True)
+    
+    id = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(
         Cliente,
         on_delete=models.PROTECT,
         db_column='cliente_id',
         related_name='expedientes',
+        verbose_name='Cliente'
     )
     # Protegemos catálogos en lugar de SET_NULL para mantener historial legal
     tipodelito = models.ForeignKey(
@@ -210,21 +185,24 @@ class ExpedientePenal(models.Model):
         on_delete=models.PROTECT,
         db_column='tipodelito_id',
         related_name='expedientes',
+        verbose_name='Tipo de Delito'
     )
     tipoprocedimiento = models.ForeignKey(
         TipoProcedimiento,
         on_delete=models.PROTECT,
         db_column='tipoprocedimiento_id',
         related_name='expedientes',
+        verbose_name='Tipo de Procedimiento'
     )
     ciudad = models.ForeignKey(
         Ciudad,
         on_delete=models.PROTECT,
         db_column='ciudad_id',
         related_name='expedientes',
+        verbose_name='Ciudad'
     )
     abogados = models.ManyToManyField(
-        'Abogado',
+        User,
         through='ExpedienteAbogado',
         related_name='expedientes_penales',
     )
@@ -239,61 +217,76 @@ class ExpedientePenal(models.Model):
     fecha_apertura = models.DateField(db_index=True)
     fecha_cierre = models.DateField(null=True, blank=True)
     prescripcion_fecha_limite = models.DateField(null=True, blank=True)  # Corregido el typo
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+    
+    def __str__(self):
+        numero = self.numero_juicio or str(self.id)
+        return f'Expediente #{numero} - {self.cliente}'
+    
     class Meta:
-        db_table = 'expedientepenal'
         verbose_name = 'Expediente Penal'
         verbose_name_plural = 'Expedientes Penales'
-
-    def __str__(self) -> str:
-        numero = self.numero_juicio or str(self.expedientepenal_id)
-        return f"Expediente #{numero} — {self.cliente}"
+        ordering = ['-numero_juicio']
+        indexes = [
+            models.Index(fields=['numero_juicio'], name='idx_expediente_numerojuicio'),
+            models.Index(fields=['cliente'], name='idx_expediente_cliente'),
+        ]
 
 
 # =============================================================================
 # TABLA INTERMEDIA EXPEDIENTE ↔ ABOGADO (Mejorada)
 # =============================================================================
 
-class ExpedienteAbogado(models.Model):
-    expedienteabogado_id = models.AutoField(primary_key=True)
+class ExpedienteAbogado(ModelBase):
+    id = models.AutoField(primary_key=True)
     expediente = models.ForeignKey(
         ExpedientePenal,
         on_delete=models.CASCADE,
         db_column='expediente_id',
         related_name='expediente_abogados',
+        verbose_name='Expediente'
     )
     abogado = models.ForeignKey(
-        Abogado,
+        User,
         on_delete=models.CASCADE,
         db_column='abogado_id',
         related_name='expediente_abogados',
+        verbose_name='Abogado'
     )
-    # Nuevos campos sugeridos para mejor gestión legal
-    rol = models.CharField(max_length=100, blank=True, help_text="Ej: Abogado Principal, Asistente")
+
+    rol = models.ForeignKey(
+        RolExpediente,
+        on_delete=models.CASCADE,
+        db_column='rol_id',
+        related_name='expediente_abogados',
+        help_text='Ej: Abogado Principal, Asistente, etc.',
+        verbose_name='Rol'
+    )
+
     fecha_asignacion = models.DateField(auto_now_add=True)
     activo = models.BooleanField(default=True)
 
+    def __str__(self):
+        estado = "Activo" if self.activo else "Inactivo"
+        return f'{self.expediente} ↔ {self.abogado} ({estado})'
+
     class Meta:
-        db_table = 'expedienteabogado'
         verbose_name = 'Expediente — Abogado'
         verbose_name_plural = 'Expedientes — Abogados'
+        ordering = ['-fecha_asignacion']
+        indexes = [
+            models.Index(fields=['expediente'], name='idx_expabog_exp'),
+            models.Index(fields=['abogado'], name='idx_expabog_abog'),
+        ]
         constraints = [
             models.UniqueConstraint(fields=['expediente', 'abogado'], name='unique_expediente_abogado')
         ]
-
-    def __str__(self) -> str:
-        estado = "Activo" if self.activo else "Inactivo"
-        return f"{self.expediente} ↔ {self.abogado} ({estado})"
 
 
 # =============================================================================
 # ETAPA PROCESAL
 # =============================================================================
 
-class EtapaProcesal(models.Model):
-
+class EtapaProcesal(ModelBase):
     class TipoEtapa(models.TextChoices):
         INVESTIGACION_PREVIA = 'investigacion_previa', 'Investigación Previa'
         INSTRUCCION_FISCAL = 'instruccion_fiscal', 'Instrucción Fiscal'
@@ -308,17 +301,19 @@ class EtapaProcesal(models.Model):
         ACTIVA = 'activa', 'Activa'
         CERRADA = 'cerrada', 'Cerrada'
 
-    etapaprocesal_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     expediente = models.ForeignKey(
         ExpedientePenal,
         on_delete=models.CASCADE,
         db_column='expediente_id',
         related_name='etapas',
+        verbose_name='Expediente'
     )
     tipo_etapa = models.CharField(
         max_length=30,
         choices=TipoEtapa.choices,
     )
+
     fecha_inicio = models.DateField(db_index=True)
     fecha_limite = models.DateField(null=True, blank=True)
     fecha_cierre = models.DateField(null=True, blank=True)
@@ -327,37 +322,42 @@ class EtapaProcesal(models.Model):
         choices=EstadoEtapa.choices,
         default=EstadoEtapa.PENDIENTE,
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
+
+    @property
+    def tipo_etapa_label(self):
+        """Helper que devuelve la etiqueta legible del tipo de etapa.
+
+        Usa el método generado por Django `get_tipo_etapa_display` para mantener
+        los *labels* definidos en `TipoEtapa`.
+        """
+        return self.get_tipo_etapa_display()
+
+    def __str__(self):
+        return f"{self.tipo_etapa_label} — {self.expediente}"
+    
     class Meta:
-        db_table = 'etapaprocesal'
         verbose_name = 'Etapa Procesal'
         verbose_name_plural = 'Etapas Procesales'
-        # Regla de negocio: Un expediente no puede tener dos etapas del mismo tipo activas a la vez
-        constraints = [
-            models.UniqueConstraint(
-                fields=['expediente', 'tipo_etapa'],
-                condition=Q(estado='activa'),
-                name='unique_etapa_activa_por_expediente'
-            )
+        ordering = ['-fecha_inicio']
+        indexes = [
+            models.Index(fields=['expediente'], name='idx_etapaprocesal_expediente'),
+            models.Index(fields=['tipo_etapa'], name='idx_etapaprocesal_tipoetapa'),
         ]
-
-    def __str__(self) -> str:
-        return f"{self.get_tipo_etapa_display()} — {self.expediente}"
 
 
 # =============================================================================
 # ESCRITO
 # =============================================================================
 
-class Escrito(models.Model):
-    escrito_id = models.AutoField(primary_key=True)
+class Escrito(ModelBase):
+    id = models.AutoField(primary_key=True)
     expedientepenal = models.ForeignKey(
         ExpedientePenal,
         on_delete=models.CASCADE,
         db_column='expedientepenal_id',
         related_name='escritos',
+        verbose_name='Expediente Penal'
     )
     etapaprocesal = models.ForeignKey(
         EtapaProcesal,
@@ -366,45 +366,58 @@ class Escrito(models.Model):
         blank=True,
         db_column='etapaprocesal_id',
         related_name='escritos',
+        verbose_name='Etapa Procesal'
     )
     abogado = models.ForeignKey(
-        Abogado,
+        User,
         on_delete=models.PROTECT,
         db_column='abogado_id',
         related_name='escritos',
+        verbose_name='Abogado'
     )
-    tipo_escrito = models.CharField(max_length=100)
+    tipo_escrito = models.ForeignKey(
+        TipoEscrito,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='tipo_escrito_id',
+        related_name='escritos',
+        verbose_name='Tipo de Escrito'
+    )
     descripcion = models.TextField(blank=True)
     fecha = models.DateField(db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.tipo_escrito} ({self.fecha}) — {self.expedientepenal}"
 
     class Meta:
-        db_table = 'escrito'
         verbose_name = 'Escrito'
         verbose_name_plural = 'Escritos'
-
-    def __str__(self) -> str:
-        return f"{self.tipo_escrito} ({self.fecha}) — {self.expedientepenal}"
+        ordering = ['-fecha']
+        indexes = [
+            models.Index(fields=['fecha'], name='idx_escrito_fecha'),
+        ]
 
 
 # =============================================================================
 # SUJETO PROCESAL
 # =============================================================================
 
-class SujetoProcesal(models.Model):  # Corregido: Procesar -> Procesal
-    sujetoprocesal_id = models.AutoField(primary_key=True)
+class SujetoProcesal(ModelBase):
+    id = models.AutoField(primary_key=True)
     expediente = models.ForeignKey(
         ExpedientePenal,
         on_delete=models.CASCADE,
         db_column='expediente_id',
         related_name='sujetos_procesales',
+        verbose_name='Expediente'
     )
     rolprocesal = models.ForeignKey(
         RolProcesal,
         on_delete=models.PROTECT,
-        db_column='rolprocesal_id',
-        related_name='sujetos',
+        db_column='rol_id',
+        related_name='sujetos_procesales',
+        verbose_name='Rol Procesal'
     )
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
@@ -412,29 +425,36 @@ class SujetoProcesal(models.Model):  # Corregido: Procesar -> Procesal
     email = models.EmailField(blank=True)
     telefono = models.CharField(max_length=20, blank=True)
     direccion = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def get_full_name(self):
+        return f'{self.nombre} {self.apellido}'
+
+    def __str__(self):
+        return f"{self.get_full_name} ({self.rolprocesal})"
 
     class Meta:
-        db_table = 'sujetoprocesal'
         verbose_name = 'Sujeto Procesal'
         verbose_name_plural = 'Sujetos Procesales'
-
-    def __str__(self) -> str:
-        return f"{self.nombre} {self.apellido} ({self.rolprocesal})"
+        ordering = ['-cedula']
+        indexes = [
+            models.Index(fields=['cedula'], name='idx_sujeto_procesal_cedula'),
+            models.Index(fields=['rolprocesal'], name='idx_sujeto_procesal_rol'),
+        ]
 
 
 # =============================================================================
 # EVIDENCIA / DOCUMENTO
 # =============================================================================
 
-class EvidenciaDocumento(models.Model):
-    evidenciadocumento_id = models.AutoField(primary_key=True)
+class EvidenciaDocumento(ModelBase):
+    id = models.AutoField(primary_key=True)
     expediente = models.ForeignKey(
         ExpedientePenal,
         on_delete=models.CASCADE,
         db_column='expediente_id',
         related_name='evidencias',
+        verbose_name='Expediente'
     )
     escrito = models.ForeignKey(
         Escrito,
@@ -443,6 +463,7 @@ class EvidenciaDocumento(models.Model):
         blank=True,
         db_column='escrito_id',
         related_name='evidencias',
+        verbose_name='Escrito'
     )
     categoria = models.ForeignKey(
         CategoriaEvidencia,
@@ -451,17 +472,21 @@ class EvidenciaDocumento(models.Model):
         blank=True,
         db_column='categoria_id',
         related_name='evidencias',
+        verbose_name='Categoría de Evidencia'
     )
     titulo = models.CharField(max_length=255)
     # FileField sin null=True (mejor práctica Django/PostgreSQL)
     # Si ya hay registros con null, la migración los convertirá a string vacío
     archivo = models.FileField(upload_to='evidencias/%Y/%m/', blank=True, default='')
-    created_at = models.DateTimeField(auto_now_add=True)  # Corregido: eliminado fecha_subida redundante y typo create_at
 
+    def __str__(self):
+        return f"{self.titulo} — {self.expediente}"
+    
     class Meta:
-        db_table = 'evidenciadocumento'
         verbose_name = 'Evidencia / Documento'
         verbose_name_plural = 'Evidencias / Documentos'
-
-    def __str__(self) -> str:
-        return f"{self.titulo} — {self.expediente}"
+        ordering = ['-titulo']
+        indexes = [
+            models.Index(fields=['titulo'], name='idx_evi_doc_titulo'),
+            models.Index(fields=['expediente'], name='idx_evi_doc_exp'),
+        ]

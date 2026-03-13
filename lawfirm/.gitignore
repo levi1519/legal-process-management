@@ -1,0 +1,79 @@
+#Ignorar todos los pycache
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+
+# Ignorar archivos de virtualenv (env) y archivo .env
+env/
+venv/
+.env
+.env.dev
+.env.local
+.env.example
+
+# Ignorar archivos de archivos de datos
+*.sqlite3
+*.db
+*.sql
+*.bak
+
+# Ignorar archivos de logs
+logs/
+
+# Ignorar archivos de caché
+cache/
+
+# Ignorar archivos de media
+media/
+
+# Ignorar staticfiles
+staticfiles/
+
+# Ignorar archivos y carpetas de visual studio code
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Ignorar archivos y carpetas de visual studio
+.vs/
+.vs/*
+
+# Ignorar archivos y carpetas de visual studio code
+.idea/
+.idea/*
+
+# Ignorar archivos y carpetas de sublime text
+*.sublime-project
+*.sublime-workspace
+
+# Ignorar archivos y carpetas de build
+build/
+dist/
+*.egg-info/
+
+# Ignorar archivos y carpetas de docs
+docs/_build/
+docs/locale/
+docs/versions.png
+
+# Ignorar archivos y carpetas de tests
+tests/coverage_html/
+tests/.coverage
+tests/.coverage.*
+tests/nosetests.xml
+tests/coverage.xml
+tests/unit.xml
+tests/manage.py
+tests/settings.py
+
+# Ignorar archivos y carpetas de codecov
+codecov.yml
+coverage.xml
+.coverage
+htmlcov/
+coverage/

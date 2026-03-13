@@ -9,11 +9,29 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
+
+load_dotenv() # Cargar variables de entorno desde fichero .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def get_required_env(*names: str) -> str:
+    """
+    Devuelve el valor de la primera variable de entorno definida en `names`.
+    Lanza ImproperlyConfigured si ninguna está definida con un valor no vacío.
+    """
+    for name in names:
+        value = os.environ.get(name)
+        if value:
+            return value
+    raise ImproperlyConfigured(
+        f"One of the environment variables {', '.join(names)} must be set for database configuration."
+    )
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,7 +55,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'penalcode',
+
+    # apps de terceros
+    'widget_tweaks',
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'django_extensions',
+
+    # apps de usuario
+    'apps.core',
+    'apps.security',
+    'apps.penalcode',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'crum.CurrentRequestUserMiddleware',
 ]
 
 ROOT_URLCONF = 'lawfirm.urls'
@@ -55,7 +84,7 @@ ROOT_URLCONF = 'lawfirm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,10 +102,24 @@ WSGI_APPLICATION = 'lawfirm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+'''
+
+DATABASES = {
+    "default": {
+        'ENGINE': os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+        'NAME': get_required_env("DB_NAME", "DB_DATABASE"),
+        'USER': get_required_env("DB_USER", "DB_USERNAME"),
+        'PASSWORD': get_required_env("DB_PASSWORD"),
+        'HOST': get_required_env("DB_HOST", "DB_SOCKET"),
+        'PORT': os.environ.get("DB_PORT", "5432"),
+        'ATOMIC_REQUESTS': True
     }
 }
 
@@ -115,10 +158,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-
-# Media files (User uploads)
+# Configuración de archivos estáticos y media
+STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-AUTH_USER_MODEL = 'penalcode.Abogado'
+# Configuración del modelo de usuario personalizado
+AUTH_USER_MODEL = 'security.User'
