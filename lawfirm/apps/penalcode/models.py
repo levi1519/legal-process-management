@@ -323,11 +323,18 @@ class EtapaProcesal(ModelBase):
         default=EstadoEtapa.PENDIENTE,
     )
 
-    def get_tipo_etapa_display(self):
-        return self.tipo_etapa.replace('_', ' ').title()
+
+    @property
+    def tipo_etapa_label(self):
+        """Helper que devuelve la etiqueta legible del tipo de etapa.
+
+        Usa el método generado por Django `get_tipo_etapa_display` para mantener
+        los *labels* definidos en `TipoEtapa`.
+        """
+        return self.get_tipo_etapa_display()
 
     def __str__(self):
-         return f"{self.get_tipo_etapa_display()} — {self.expediente}"
+        return f"{self.tipo_etapa_label} — {self.expediente}"
     
     class Meta:
         verbose_name = 'Etapa Procesal'
