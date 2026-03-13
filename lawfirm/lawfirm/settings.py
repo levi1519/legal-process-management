@@ -12,11 +12,26 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 load_dotenv() # Cargar variables de entorno desde fichero .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def get_required_env(*names: str) -> str:
+    """
+    Devuelve el valor de la primera variable de entorno definida en `names`.
+    Lanza ImproperlyConfigured si ninguna está definida con un valor no vacío.
+    """
+    for name in names:
+        value = os.environ.get(name)
+        if value:
+            return value
+    raise ImproperlyConfigured(
+        f"One of the environment variables {', '.join(names)} must be set for database configuration."
+    )
 
 
 # Quick-start development settings - unsuitable for production
@@ -99,10 +114,10 @@ DATABASES = {
 DATABASES = {
     "default": {
         'ENGINE': os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
-        'NAME': os.environ.get("DB_DATABASE", ""),
-        'USER': os.environ.get("DB_USERNAME", ""),
-        'PASSWORD': os.environ.get("DB_PASSWORD", ""),
-        'HOST': os.environ.get("DB_SOCKET", ""),
+        'NAME': get_required_env("DB_NAME", "DB_DATABASE"),
+        'USER': get_required_env("DB_USER", "DB_USERNAME"),
+        'PASSWORD': get_required_env("DB_PASSWORD"),
+        'HOST': get_required_env("DB_HOST", "DB_SOCKET"),
         'PORT': os.environ.get("DB_PORT", "5432"),
         'ATOMIC_REQUESTS': True
     }
