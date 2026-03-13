@@ -27,10 +27,6 @@ cache/
 # Ignorar archivos de media
 media/
 
-# Ignorar todos los migrations de todas las apps
-apps/*/migrations/
-apps/*/*/migrations/
-
 # Ignorar staticfiles
 staticfiles/
 
