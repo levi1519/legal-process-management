@@ -3,6 +3,7 @@ models.py — Módulo Penal (COIP)
 Sistema de Gestión Legal — Ecuador
 """
 from django.db import models
+from django.db.models import Q
 from apps.core.models import ModelBase, Ciudad
 from apps.security.models import User
 
@@ -343,6 +344,13 @@ class EtapaProcesal(ModelBase):
         indexes = [
             models.Index(fields=['expediente'], name='idx_etapaprocesal_expediente'),
             models.Index(fields=['tipo_etapa'], name='idx_etapaprocesal_tipoetapa'),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['expediente', 'tipo_etapa'],
+                condition=Q(estado='activa'),
+                name='unique_etapa_activa_por_expediente',
+            )
         ]
 
 

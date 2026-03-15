@@ -1,0 +1,56 @@
+# =============================================
+# .gitignore — LawFirm / COIP System (root)
+# =============================================
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+static_collected/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Migraciones generadas localmente (opcional — descomenta si aplica)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Coverage y tests
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Distribución / empaquetado
+dist/
+build/
+*.egg-info/

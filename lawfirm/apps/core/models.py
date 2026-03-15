@@ -1,5 +1,27 @@
 from django.db import models
+from django.db.models import QuerySet
 from django.utils import timezone
+
+
+class SoftDeleteQuerySet(QuerySet):
+    """QuerySet que excluye por defecto registros con soft delete aplicado."""
+
+    def alive(self):
+        return self.filter(deleted_at__isnull=True)
+
+    def deleted(self):
+        return self.filter(deleted_at__isnull=False)
+
+
+class SoftDeleteManager(models.Manager):
+    """Manager que devuelve sólo registros activos (deleted_at IS NULL)."""
+
+    def get_queryset(self):
+        return SoftDeleteQuerySet(self.model, using=self._db).alive()
+
+    def all_with_deleted(self):
+        return SoftDeleteQuerySet(self.model, using=self._db)
+
 
 class ModelBase(models.Model):
     """
@@ -22,6 +44,8 @@ class ModelBase(models.Model):
         blank=True,
         help_text="Fecha y hora de eliminación (soft delete)"
     )
+
+    objects = SoftDeleteManager()
 
     class Meta:
         abstract = True

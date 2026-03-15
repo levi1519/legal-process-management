@@ -65,16 +65,25 @@ echo ""
 
 # 2. Verificar PostgreSQL
 echo -e "${MAGENTA}2. Verificando PostgreSQL...${NC}"
-if ! command -v psql &> /dev/null; then
-    error "PostgreSQL no está instalado"
-    exit 1
+POSTGRES_AVAILABLE=false
+if command -v psql &> /dev/null; then
+    success "PostgreSQL encontrado: $(psql --version)"
+    POSTGRES_AVAILABLE=true
+else
+    warning "PostgreSQL no está instalado o no está en el PATH."
+    warning "Los pasos de base de datos serán omitidos."
+    warning "Para instalar PostgreSQL visita: https://www.postgresql.org/download/"
+    info "Puedes continuar con SQLite para desarrollo local."
 fi
-
-success "PostgreSQL encontrado"
 echo ""
 
 # 3. Configurar datos de la Base de Datos
 echo -e "${MAGENTA}3. Configurando Base de Datos...${NC}"
+
+if [ "$POSTGRES_AVAILABLE" = false ]; then
+    warning "PostgreSQL no disponible — saltando configuración de BD."
+    echo ""
+else
 echo ""
 
 echo -ne "${CYAN}Nombre de la BD [default: ${DEFAULT_DB_NAME}]: ${NC}"
@@ -154,23 +163,42 @@ else
 fi
 echo ""
 
+# fi — fin bloque PostgreSQL disponible
+fi
+echo ""
+
+# Exportar variables de entorno para Django (solo si PostgreSQL disponible)
+if [ "$POSTGRES_AVAILABLE" = true ]; then
+    export DB_NAME="$DB_NAME"
+    export DB_USER="$DB_USER"
+    export DB_HOST="$DB_HOST"
+    export DB_PORT="$DB_PORT"
+    export DB_PASSWORD="$DB_PASSWORD"
+fi
+
 # 5. Instalar dependencias
 echo -e "${MAGENTA}5. Instalando dependencias...${NC}"
 
 # Buscar y activar el entorno virtual
-if [ -f "env/scripts/activate" ]; then
-    source env/scripts/activate
-    success "Entorno virtual (env/scripts/activate) activado"
-elif [ -f "env/Scripts/activate" ]; then
-    source env/Scripts/activate
-    success "Entorno virtual (env/Scripts/activate) activado"
+if [ -f "venv/Scripts/activate" ]; then
+    source venv/Scripts/activate
+    success "Entorno virtual (venv/Scripts/activate) activado"
+elif [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+    success "Entorno virtual (venv/bin/activate) activado"
 elif [ -f ".venv/Scripts/activate" ]; then
     source .venv/Scripts/activate
     success "Entorno virtual (.venv/Scripts/activate) activado"
-elif [ -f "venv/Scripts/activate" ]; then
-    source venv/Scripts/activate
-    success "Entorno virtual (venv/Scripts/activate) activado"
-elif [ -d "env" ] || [ -d ".venv" ] || [ -d "venv" ]; then
+elif [ -f ".venv/bin/activate" ]; then
+    source .venv/bin/activate
+    success "Entorno virtual (.venv/bin/activate) activado"
+elif [ -f "env/Scripts/activate" ]; then
+    source env/Scripts/activate
+    success "Entorno virtual (env/Scripts/activate) activado"
+elif [ -f "env/bin/activate" ]; then
+    source env/bin/activate
+    success "Entorno virtual (env/bin/activate) activado"
+elif [ -d "venv" ] || [ -d ".venv" ] || [ -d "env" ]; then
     warning "Entorno virtual encontrado pero no se pudo activar"
 else
     warning "No se encontró entorno virtual"
@@ -192,6 +220,11 @@ echo ""
 
 # 6. Crear migraciones
 echo -e "${MAGENTA}6. Creando migraciones...${NC}"
+if [ "$POSTGRES_AVAILABLE" = false ]; then
+    warning "PostgreSQL no disponible — saltando migraciones."
+    info "Instala PostgreSQL y vuelve a ejecutar setup.sh para aplicar migraciones."
+    echo ""
+else
 if [ -f "manage.py" ]; then
     python manage.py makemigrations
     if [ $? -eq 0 ]; then
@@ -225,6 +258,7 @@ else
     warning "No se pudo crear el superusuario (puede ser cancelado por el usuario)"
 fi
 echo ""
+fi  # fin bloque PostgreSQL para migraciones
 
 # Resumen final
 echo -e "${GREEN}========================================${NC}"
