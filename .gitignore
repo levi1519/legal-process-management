@@ -20,6 +20,9 @@ __pycache__/
 *.log
 local_settings.py
 db.sqlite3
+*.sqlite3
+*.db
+*.sql
 media/
 staticfiles/
 static_collected/
@@ -27,7 +30,6 @@ static_collected/
 # Variables de entorno
 .env
 .env.*
-!.env.example
 
 # IDEs y editores
 .vscode/
