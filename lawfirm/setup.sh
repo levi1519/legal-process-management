@@ -9,7 +9,7 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# Configuración por defecto
+# ConfiguraciÃ³n por defecto
 DEFAULT_DB_NAME="coip_system"
 DEFAULT_DB_USER="postgres"
 DEFAULT_DB_HOST="localhost"
@@ -21,46 +21,55 @@ echo -e "${BLUE}     SETUP COIP SYSTEM${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
-# Función para mostrar mensajes de éxito
+# FunciÃ³n para mostrar mensajes de Ã©xito
 success() {
-    echo -e "${GREEN}[✓] $1${NC}"
+    echo -e "${GREEN}[âœ“] $1${NC}"
 }
 
-# Función para mostrar errores
+# FunciÃ³n para mostrar errores
 error() {
-    echo -e "${RED}[✗] $1${NC}"
+    echo -e "${RED}[âœ—] $1${NC}"
 }
 
-# Función para mostrar advertencias
+# FunciÃ³n para mostrar advertencias
 warning() {
     echo -e "${YELLOW}[!] $1${NC}"
 }
 
-# Función para mostrar información
+# FunciÃ³n para mostrar informaciÃ³n
 info() {
     echo -e "${CYAN}[i] $1${NC}"
 }
 
-# 1. Verificar versión de Python
+# 1. Verificar versiÃ³n de Python
 echo -e "${MAGENTA}1. Verificando Python...${NC}"
-if ! command -v python &> /dev/null; then
-    error "Python no está instalado"
+PYTHON_CMD=""
+if command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif [ -x "../venv/Scripts/python.exe" ]; then
+    PYTHON_CMD="../venv/Scripts/python.exe"
+elif [ -x "venv/Scripts/python.exe" ]; then
+    PYTHON_CMD="venv/Scripts/python.exe"
+else
+    error "Python no está instalado o no está en PATH"
     exit 1
 fi
 
-PYTHON_VERSION=$(python --version 2>&1)
+PYTHON_VERSION=$($PYTHON_CMD --version 2>&1)
 success "Python encontrado: $PYTHON_VERSION"
 
 MIN_VERSION=3.8
-PYTHON_MAJOR=$(python -c 'import sys; print(sys.version_info.major)')
-PYTHON_MINOR=$(python -c 'import sys; print(sys.version_info.minor)')
+PYTHON_MAJOR=$($PYTHON_CMD -c 'import sys; print(sys.version_info.major)')
+PYTHON_MINOR=$($PYTHON_CMD -c 'import sys; print(sys.version_info.minor)')
 
 if [ "$PYTHON_MAJOR" -lt 3 ] || { [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]; }; then
     error "Se requiere Python 3.8 o superior"
     exit 1
 fi
 
-success "Versión de Python compatible"
+success "VersiÃ³n de Python compatible"
 echo ""
 
 # 2. Verificar PostgreSQL
@@ -70,8 +79,8 @@ if command -v psql &> /dev/null; then
     success "PostgreSQL encontrado: $(psql --version)"
     POSTGRES_AVAILABLE=true
 else
-    warning "PostgreSQL no está instalado o no está en el PATH."
-    warning "Los pasos de base de datos serán omitidos."
+    warning "PostgreSQL no estÃ¡ instalado o no estÃ¡ en el PATH."
+    warning "Los pasos de base de datos serÃ¡n omitidos."
     warning "Para instalar PostgreSQL visita: https://www.postgresql.org/download/"
     info "Puedes continuar con SQLite para desarrollo local."
 fi
@@ -81,7 +90,7 @@ echo ""
 echo -e "${MAGENTA}3. Configurando Base de Datos...${NC}"
 
 if [ "$POSTGRES_AVAILABLE" = false ]; then
-    warning "PostgreSQL no disponible — saltando configuración de BD."
+    warning "PostgreSQL no disponible â€” saltando configuraciÃ³n de BD."
     echo ""
 else
 echo ""
@@ -102,12 +111,12 @@ echo -ne "${CYAN}Puerto de PostgreSQL [default: ${DEFAULT_DB_PORT}]: ${NC}"
 read -r DB_PORT
 DB_PORT=${DB_PORT:-$DEFAULT_DB_PORT}
 
-echo -ne "${CYAN}Contraseña de PostgreSQL [default: ${DEFAULT_DB_PASSWORD}]: ${NC}"
+echo -ne "${CYAN}ContraseÃ±a de PostgreSQL [default: ${DEFAULT_DB_PASSWORD}]: ${NC}"
 read -rs DB_PASSWORD
 DB_PASSWORD=${DB_PASSWORD:-$DEFAULT_DB_PASSWORD}
 echo ""
 
-info "Configuración de BD:"
+info "ConfiguraciÃ³n de BD:"
 echo "  - Nombre: $DB_NAME"
 echo "  - Usuario: $DB_USER"
 echo "  - Host: $DB_HOST"
@@ -116,11 +125,11 @@ echo ""
 
 export PGPASSWORD="$DB_PASSWORD"
 
-info "Verificando conexión a PostgreSQL..."
+info "Verificando conexiÃ³n a PostgreSQL..."
 if psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -c "SELECT version();" &> /dev/null; then
-    success "Conexión a PostgreSQL exitosa"
+    success "ConexiÃ³n a PostgreSQL exitosa"
 else
-    error "No se pudo conectar a PostgreSQL. Verifica que el servidor esté corriendo y los datos sean correctos."
+    error "No se pudo conectar a PostgreSQL. Verifica que el servidor estÃ© corriendo y los datos sean correctos."
     exit 1
 fi
 
@@ -129,7 +138,7 @@ DB_EXISTS=$(psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -tAc "SELECT 1 FROM p
 
 if [ "$DB_EXISTS" = "1" ]; then
     warning "La base de datos '$DB_NAME' ya existe"
-    echo -ne "${YELLOW}¿Desea reiniciarla? (perdera todos los datos) [s/N]: ${NC}"
+    echo -ne "${YELLOW}Â¿Desea reiniciarla? (perdera todos los datos) [s/N]: ${NC}"
     read -r response
     if [[ "$response" =~ ^[Ss]$ ]]; then
         info "Eliminando base de datos existente..."
@@ -163,7 +172,7 @@ else
 fi
 echo ""
 
-# fi — fin bloque PostgreSQL disponible
+# fi â€” fin bloque PostgreSQL disponible
 fi
 echo ""
 
@@ -201,7 +210,7 @@ elif [ -f "env/bin/activate" ]; then
 elif [ -d "venv" ] || [ -d ".venv" ] || [ -d "env" ]; then
     warning "Entorno virtual encontrado pero no se pudo activar"
 else
-    warning "No se encontró entorno virtual"
+    warning "No se encontrÃ³ entorno virtual"
 fi
 
 if [ -f "requirements.txt" ]; then
@@ -214,19 +223,25 @@ if [ -f "requirements.txt" ]; then
         exit 1
     fi
 else
-    warning "No se encontró requirements.txt"
+    warning "No se encontrÃ³ requirements.txt"
 fi
 echo ""
+
+# Preferir el python activo del entorno virtual cuando esté disponible
+DJANGO_PYTHON="$PYTHON_CMD"
+if command -v python &> /dev/null; then
+    DJANGO_PYTHON="python"
+fi
 
 # 6. Crear migraciones
 echo -e "${MAGENTA}6. Creando migraciones...${NC}"
 if [ "$POSTGRES_AVAILABLE" = false ]; then
-    warning "PostgreSQL no disponible — saltando migraciones."
+    warning "PostgreSQL no disponible â€” saltando migraciones."
     info "Instala PostgreSQL y vuelve a ejecutar setup.sh para aplicar migraciones."
     echo ""
 else
 if [ -f "manage.py" ]; then
-    python manage.py makemigrations
+    "$DJANGO_PYTHON" manage.py makemigrations
     if [ $? -eq 0 ]; then
         success "Migraciones creadas"
     else
@@ -234,12 +249,12 @@ if [ -f "manage.py" ]; then
         exit 1
     fi
 else
-    error "No se encontró manage.py"
+    error "No se encontrÃ³ manage.py"
     exit 1
 fi
 
 info "Aplicando migraciones..."
-python manage.py migrate
+"$DJANGO_PYTHON" manage.py migrate
 if [ $? -eq 0 ]; then
     success "Migraciones aplicadas"
 else
@@ -250,12 +265,18 @@ echo ""
 
 # 7. Crear superusuario
 echo -e "${MAGENTA}7. Creando superusuario...${NC}"
-info "Ejecutando createsuperuser..."
-python manage.py createsuperuser
-if [ $? -eq 0 ]; then
-    success "Superusuario creado"
+echo -ne "${CYAN}¿Desea crear superusuario ahora? [s/N]: ${NC}"
+read -r create_superuser
+if [[ "$create_superuser" =~ ^[Ss]$ ]]; then
+    info "Ejecutando createsuperuser..."
+    "$DJANGO_PYTHON" manage.py createsuperuser
+    if [ $? -eq 0 ]; then
+        success "Superusuario creado"
+    else
+        warning "No se pudo crear el superusuario (puede ser cancelado por el usuario)"
+    fi
 else
-    warning "No se pudo crear el superusuario (puede ser cancelado por el usuario)"
+    info "Superusuario omitido por el usuario."
 fi
 echo ""
 fi  # fin bloque PostgreSQL para migraciones
@@ -264,6 +285,6 @@ fi  # fin bloque PostgreSQL para migraciones
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}     SETUP COMPLETADO${NC}"
 echo -e "${GREEN}========================================${NC}"
-success "El sistema está listo para usar"
+success "El sistema estÃ¡ listo para usar"
 info "Ejecuta: python manage.py runserver"
 echo ""
