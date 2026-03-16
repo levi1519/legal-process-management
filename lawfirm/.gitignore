@@ -10,7 +10,7 @@ venv/
 .env
 .env.dev
 .env.local
-.env.example
+!.env.example
 
 # Ignorar archivos de archivos de datos
 *.sqlite3
