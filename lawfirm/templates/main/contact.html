@@ -1,0 +1,199 @@
+{% extends "components/base_form.html" %}
+{% load static %}
+{% block title %}Contacto{% endblock %}
+{% block meta_description %}Formulario de contacto del Sistema de Gestión Legal COIP.{% endblock %}
+
+{% block nav_contact %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep">/</span>
+<span class="current">Contacto</span>
+{% endblock %}
+
+{# ── Page header ── #}
+{% block page_eyebrow %}Soporte{% endblock %}
+{% block page_title %}Contacto{% endblock %}
+{% block page_subtitle %}Envíe su consulta o solicitud de soporte técnico al equipo de desarrollo.{% endblock %}
+
+{# ── Form card ── #}
+{% block form_card_title %}Formulario de Contacto{% endblock %}
+
+{% block form_layout_class %}has-aside{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/contact.css' %}">
+{% endblock %}
+
+{# ── Form fields ── #}
+{% block form_fields %}
+<div class="fieldset-group">
+    <div class="fieldset-legend">Datos de contacto</div>
+    <div class="form-grid">
+        <div class="form-group">
+            <label class="form-label" for="contact_name">
+                Nombre completo <span class="required">*</span>
+            </label>
+            <input
+                type="text"
+                id="contact_name"
+                name="nombre"
+                class="form-control"
+                placeholder="Ej. Juan Pérez"
+                required
+                autocomplete="name"
+            />
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="contact_email">
+                Correo electrónico <span class="required">*</span>
+            </label>
+            <input
+                type="email"
+                id="contact_email"
+                name="email"
+                class="form-control"
+                placeholder="correo@ejemplo.com"
+                required
+                autocomplete="email"
+            />
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="contact_phone">
+                Teléfono
+            </label>
+            <input
+                type="tel"
+                id="contact_phone"
+                name="telefono"
+                class="form-control"
+                placeholder="+593 99 000 0000"
+                autocomplete="tel"
+            />
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="contact_institution">
+                Institución / Despacho
+            </label>
+            <input
+                type="text"
+                id="contact_institution"
+                name="institucion"
+                class="form-control"
+                placeholder="Nombre del despacho o institución"
+            />
+        </div>
+    </div>
+</div>
+
+<div class="fieldset-group">
+    <div class="fieldset-legend">Motivo de contacto</div>
+    <div class="form-grid">
+        <div class="form-group span-2">
+            <label class="form-label" for="contact_subject">
+                Asunto <span class="required">*</span>
+            </label>
+            <div class="subject-select-wrapper">
+                <select id="contact_subject" name="asunto" class="form-control" required>
+                    <option value="" disabled selected>Seleccione un asunto...</option>
+                    <optgroup label="Soporte Técnico">
+                        <option value="soporte_acceso">Problemas de acceso o autenticación</option>
+                        <option value="soporte_error">Reporte de error en el sistema</option>
+                        <option value="soporte_rendimiento">Problemas de rendimiento</option>
+                    </optgroup>
+                    <optgroup label="Consultas">
+                        <option value="consulta_legal">Consulta sobre funcionalidades legales</option>
+                        <option value="consulta_datos">Consulta sobre gestión de datos</option>
+                        <option value="capacitacion">Solicitud de capacitación</option>
+                    </optgroup>
+                    <optgroup label="Desarrollo">
+                        <option value="mejora">Sugerencia de mejora</option>
+                        <option value="integracion">Solicitud de integración</option>
+                        <option value="otro">Otro</option>
+                    </optgroup>
+                </select>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+        </div>
+        <div class="form-group span-full">
+            <label class="form-label" for="contact_message">
+                Mensaje <span class="required">*</span>
+            </label>
+            <textarea
+                id="contact_message"
+                name="mensaje"
+                class="form-control"
+                rows="5"
+                placeholder="Describa detalladamente su consulta o el problema que está experimentando..."
+                required
+            ></textarea>
+            <span class="form-hint">Mínimo 20 caracteres. Sea lo más específico posible para agilizar la respuesta.</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{# ── Submit label ── #}
+{% block form_submit_label %}Enviar mensaje{% endblock %}
+
+{# ── Cancel URL ── #}
+{% block form_cancel_url %}{% url 'core:home' %}{% endblock %}
+
+{# ── Aside: contact info ── #}
+{% block form_aside %}
+<div class="form-aside-panel">
+
+    <div class="info-panel">
+        <div class="info-panel-header">
+            <h3 class="info-panel-title">Información de Contacto</h3>
+        </div>
+        <div class="info-panel-body">
+            <div class="contact-info-item">
+                <div class="contact-info-icon"><i class="bi bi-envelope"></i></div>
+                <div>
+                    <div class="contact-info-label">Correo electrónico</div>
+                    <div class="contact-info-value">soporte@legaltech-ec.com</div>
+                </div>
+            </div>
+            <div class="contact-info-item">
+                <div class="contact-info-icon"><i class="bi bi-clock"></i></div>
+                <div>
+                    <div class="contact-info-label">Horario de atención</div>
+                    <div class="contact-info-value">Lunes a viernes<br>08:00 – 17:00 (ECT)</div>
+                </div>
+            </div>
+            <div class="contact-info-item">
+                <div class="contact-info-icon"><i class="bi bi-geo-alt"></i></div>
+                <div>
+                    <div class="contact-info-label">Ubicación</div>
+                    <div class="contact-info-value">Guayaquil, Ecuador</div>
+                </div>
+            </div>
+            <div class="contact-info-item">
+                <div class="contact-info-icon"><i class="bi bi-reply"></i></div>
+                <div>
+                    <div class="contact-info-label">Tiempo de respuesta</div>
+                    <div class="contact-info-value">24 – 48 horas hábiles</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <div class="info-panel-header">
+            <h3 class="info-panel-title">Privacidad</h3>
+        </div>
+        <div class="info-panel-body">
+            <p>
+                Los datos proporcionados en este formulario se utilizan únicamente
+                para responder su consulta y no serán compartidos con terceros.
+            </p>
+            <p style="margin-bottom:0;">
+                Toda comunicación está protegida bajo las políticas de confidencialidad
+                del sistema LegalTech Ecuador.
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

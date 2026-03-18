@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Acceso al Sistema de Gestión Legal COIP — Ecuador" />
+    <title>Acceso al Sistema | LegalTech COIP</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="login-left">
+            <div class="gold-line"></div>
+            <div class="deco-grid"></div>
+
+            <div class="login-left-top">
+                <a href="#" class="login-brand">
+                    <div class="login-brand-emblem">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.25C17.25 21.15 21 16.25 21 11V5L12 1zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/>
+                        </svg>
+                    </div>
+                    <div class="login-brand-text">
+                        <span class="login-brand-name">LegalTech</span>
+                        <span class="login-brand-sub">Sistema COIP</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="login-left-mid">
+                <div class="login-hero-eyebrow">Gestión Procesal Penal</div>
+                <h1 class="login-hero-title">
+                    Derecho penal<br>
+                    gestionado con<br>
+                    <em>precisión</em>
+                </h1>
+                <p class="login-hero-body">
+                    Plataforma integral de administración de expedientes penales,
+                    control de plazos y gestión documental, diseñada bajo el marco
+                    del Código Orgánico Integral Penal ecuatoriano.
+                </p>
+                <div class="login-features">
+                    <span class="login-feature-pill">
+                        <i class="bi bi-folder2-open"></i> Expedientes COIP
+                    </span>
+                    <span class="login-feature-pill">
+                        <i class="bi bi-clock-history"></i> Control de plazos
+                    </span>
+                    <span class="login-feature-pill">
+                        <i class="bi bi-shield-check"></i> Integridad jurídica
+                    </span>
+                    <span class="login-feature-pill">
+                        <i class="bi bi-geo-alt"></i> Ecuador
+                    </span>
+                </div>
+            </div>
+
+            <div class="login-left-bot">
+                <div class="login-meta">
+                    <span>&copy; {% now "Y" %} LegalTech Ecuador</span>
+                    <span class="login-meta-dot"></span>
+                    <span>v1.0.0 MVP</span>
+                    <span class="login-meta-dot"></span>
+                    <span>Guayaquil, EC</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-right">
+            <div class="system-chip">
+                <span class="system-chip-dot"></span>
+                Sistema operativo
+            </div>
+
+            <div class="login-form-header">
+                <div class="login-form-eyebrow">Acceso restringido</div>
+                <h2 class="login-form-title">Iniciar sesión</h2>
+                <p class="login-form-subtitle">
+                    Ingrese sus credenciales institucionales para continuar.
+                </p>
+            </div>
+
+            {% if form.errors %}
+            <div class="login-alert" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <div>
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    {% else %}
+                        Credenciales incorrectas. Verifique su usuario y contraseña.
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="login-alert" role="alert">
+                <i class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                <div>{{ message }}</div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'security:login' %}" novalidate>
+                {% csrf_token %}
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}" />
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label" for="id_username">Usuario</label>
+                    <div class="input-wrap">
+                        <i class="bi bi-person input-icon"></i>
+                        <input type="text" id="id_username" name="username" value="{{ form.username.value|default:'' }}" required autofocus autocomplete="username" class="form-control" placeholder="Ingrese su usuario" />
+                    </div>
+                    {% if form.username.errors %}
+                    <div class="form-error">
+                        {% for e in form.username.errors %}{{ e }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_password">Contraseña</label>
+                    <div class="input-wrap">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input type="password" id="id_password" name="password" required autocomplete="current-password" class="form-control has-toggle" placeholder="Ingrese su contraseña" />
+                        <button type="button" id="togglePassword" class="input-toggle" aria-label="Mostrar/ocultar contraseña">
+                            <i class="bi bi-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                    <div class="form-error">
+                        {% for e in form.password.errors %}{{ e }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-wrap">
+                        <input type="checkbox" name="remember_me">
+                        <span class="checkbox-label">Mantener sesión</span>
+                    </label>
+                    <a href="{% url 'security:password_reset' %}" class="forgot-link">¿Olvidó su contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span class="btn-login-text">Ingresar al sistema</span>
+                </button>
+            </form>
+
+            <div class="login-form-footer">
+                <div class="form-divider"></div>
+                <p class="login-footer-text">
+                    Acceso exclusivo para personal autorizado.<br>
+                    Si tiene problemas para ingresar, contacte al
+                    <a href="{% url 'core:contact' %}">equipo de soporte</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pwd = document.getElementById('id_password');
+        const toggle = document.getElementById('togglePassword');
+        const icon = document.getElementById('toggleIcon');
+
+        toggle?.addEventListener('click', () => {
+            const isHidden = pwd.type === 'password';
+            pwd.type = isHidden ? 'text' : 'password';
+            icon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+            toggle.setAttribute('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+    </script>
+</body>
+</html>

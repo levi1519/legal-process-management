@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Acerca del Sistema{% endblock %}
+{% block meta_description %}Información sobre el Sistema de Gestión Legal COIP de Ecuador.{% endblock %}
+
+{% block nav_about %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep">/</span>
+<span class="current">Acerca del Sistema</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Page header ── #}
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">Institución</span>
+        <h1 class="page-title">Acerca del Sistema</h1>
+        <p class="page-subtitle">Plataforma de gestión legal bajo el marco del COIP ecuatoriano.</p>
+    </div>
+</div>
+
+{# ── Hero ── #}
+<div class="about-hero">
+    <div class="about-hero-inner">
+        <div class="about-hero-eyebrow">LegalTech Ecuador &mdash; Sistema COIP</div>
+        <h2 class="about-hero-title">
+            Gestión procesal penal<br>diseñada para el abogado moderno
+        </h2>
+        <p class="about-hero-body">
+            Sistema backend robusto para la administración integral de expedientes penales,
+            control de plazos procesales y gestión de evidencias judiciales, desarrollado
+            específicamente para cumplir con la normativa del
+            <strong style="color:var(--gold-light);">Código Orgánico Integral Penal (COIP)</strong> de Ecuador.
+        </p>
+    </div>
+</div>
+
+{# ── Main layout ── #}
+<div class="about-layout">
+
+    {# ── Left: features + framework ── #}
+    <div>
+        <div class="gold-rule">
+            <span class="gold-rule-center">Características del Sistema</span>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-folder2-open"></i></div>
+                <div class="feature-title">Gestión de Expedientes</div>
+                <p class="feature-body">
+                    Control completo del ciclo de vida procesal: denuncia, instrucción
+                    fiscal, evaluación preparatoria, juicio y sentencia.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="feature-title">Control de Plazos</div>
+                <p class="feature-body">
+                    Alertas automáticas de prescripción con tres estados: vigente,
+                    próximo a prescribir y prescrito.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-paperclip"></i></div>
+                <div class="feature-title">Gestión Documental</div>
+                <p class="feature-body">
+                    Almacenamiento organizado de evidencias testimoniales, documentales
+                    y periciales vinculadas a cada etapa procesal.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-people"></i></div>
+                <div class="feature-title">Equipos Legales</div>
+                <p class="feature-body">
+                    Asignación de abogados a expedientes con roles definidos, fechas
+                    de asignación y control de estado activo/inactivo.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+                <div class="feature-title">Integridad Referencial</div>
+                <p class="feature-body">
+                    Políticas de borrado diseñadas para el contexto legal: PROTECT
+                    en catálogos, CASCADE en relaciones secundarias.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
+                <div class="feature-title">Cobertura Nacional</div>
+                <p class="feature-body">
+                    Estructura jerárquica geográfica: 4 regiones, 24 provincias y
+                    ciudades del Ecuador para determinar competencia territorial.
+                </p>
+            </div>
+        </div>
+
+        <div class="legal-box">
+            <div class="legal-box-title">Marco Legal Aplicable</div>
+            Este sistema ha sido desarrollado con estricto apego al
+            <strong>Código Orgánico Integral Penal (COIP)</strong> vigente en Ecuador,
+            contemplando los procedimientos ordinario, abreviado, directo y expedito,
+            así como los plazos de investigación previa e instrucción fiscal establecidos
+            por cada tipo de delito.
+        </div>
+    </div>
+
+    {# ── Right: version + tech ── #}
+    <div>
+        <div class="version-block">
+            <div class="version-number">1.0</div>
+            <div class="version-label">Versión MVP Backend</div>
+            <div class="version-date">Marzo 2026</div>
+        </div>
+
+        <div class="card mb-3" style="margin-bottom:1rem;">
+            <div class="card-header">
+                <h3 class="card-title" style="font-size:.9rem;">Tecnologías</h3>
+            </div>
+            <div class="card-body" style="padding:1rem;">
+                <div class="tech-list">
+                    <div class="tech-item">
+                        <span class="tech-name">Python</span>
+                        <span class="tech-version">3.13</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">Django</span>
+                        <span class="tech-version">5.2.12</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">PostgreSQL</span>
+                        <span class="tech-version">12+</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-name">Bootstrap Icons</span>
+                        <span class="tech-version">1.11</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title" style="font-size:.9rem;">Contexto Académico</h3>
+            </div>
+            <div class="card-body">
+                <p style="font-size:.82rem; color:var(--ash); margin:0; line-height:1.7;">
+                    Proyecto desarrollado como base técnica de una tesis de
+                    Ingeniería de Software, enfocado en la aplicación de patrones
+                    de diseño en sistemas legales y la optimización de bases de datos
+                    para contextos judiciales.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>{# /about-layout #}
+
+{% endblock %}

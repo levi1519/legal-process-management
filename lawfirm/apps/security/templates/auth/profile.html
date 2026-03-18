@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Mi Perfil{% endblock %}
+{% block meta_description %}Perfil del abogado — Sistema de Gestión Legal COIP{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep">/</span>
+<span class="current">Mi Perfil</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Page header ── #}
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">Cuenta</span>
+        <h1 class="page-title">Mi Perfil</h1>
+        <p class="page-subtitle">Gestione su información personal y configuración de seguridad.</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'core:home' %}" class="btn btn-outline btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+        </a>
+    </div>
+</div>
+
+<div class="profile-layout">
+
+<!-- ================================================================
+       LEFT — Identity card
+     =============================================================== -->
+    <div class="identity-card">
+        <div class="identity-card-banner"></div>
+
+        <div class="identity-card-avatar-wrap">
+            <div class="identity-avatar">
+                {{ user.first_name|first|default:user.username|first|upper }}
+            </div>
+        </div>
+
+        <div class="identity-card-body">
+            <div class="identity-name">
+                {{ user.get_full_name|default:user.username }}
+            </div>
+            <div class="identity-username">@{{ user.username }}</div>
+
+            <div class="identity-role
+                {% if user.is_superuser %}admin{% elif user.is_staff %}staff{% else %}abogado{% endif %}">
+                <i class="bi bi-{% if user.is_superuser %}shield-fill{% elif user.is_staff %}star-fill{% else %}briefcase{% endif %}"></i>
+                {% if user.is_superuser %}Administrador{% elif user.is_staff %}Staff{% else %}Abogado{% endif %}
+            </div>
+
+            {# Stats #}
+            <div class="identity-stats">
+                <div class="identity-stat">
+                    <div class="identity-stat-value">{{ expedientes_count|default:"0" }}</div>
+                    <div class="identity-stat-label">Expedientes</div>
+                </div>
+                <div class="identity-stat">
+                    <div class="identity-stat-value">{{ escritos_count|default:"0" }}</div>
+                    <div class="identity-stat-label">Escritos</div>
+                </div>
+            </div>
+
+            <div class="identity-divider"></div>
+
+            <div class="identity-meta">
+                {% if user.email %}
+                <div class="identity-meta-item">
+                    <i class="bi bi-envelope"></i>
+                    <span style="word-break:break-all;">{{ user.email }}</span>
+                </div>
+                {% endif %}
+                {% if user.ci %}
+                <div class="identity-meta-item">
+                    <i class="bi bi-card-text"></i>
+                    <span class="text-mono">{{ user.ci }}</span>
+                </div>
+                {% endif %}
+                {% if user.telefono %}
+                <div class="identity-meta-item">
+                    <i class="bi bi-telephone"></i>
+                    <span>{{ user.telefono }}</span>
+                </div>
+                {% endif %}
+                <div class="identity-meta-item">
+                    <i class="bi bi-calendar3"></i>
+                    <span>Desde {{ user.date_joined|date:"d/m/Y" }}</span>
+                </div>
+                <div class="identity-meta-item">
+                    <i class="bi bi-clock"></i>
+                    <span>
+                        {% if user.last_login %}
+                            {{ user.last_login|date:"d/m/Y H:i" }}
+                        {% else %}
+                            Sin registro
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- ================================================================
+       RIGHT — Sections
+     =============================================================== -->
+    <div class="profile-main">
+
+        {# ── Personal data ── #}
+        <div class="profile-section">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title">
+                    <i class="bi bi-person"></i> Información Personal
+                </h2>
+                <span class="badge badge-gold" style="
+                    display:inline-flex; align-items:center;
+                    padding:.2rem .55rem; border-radius:999px;
+                    font-size:.67rem; font-weight:500;
+                    background:rgba(184,151,58,.12); color:var(--gold-muted);
+                    border:1px solid rgba(184,151,58,.3);
+                ">
+                    Datos del abogado
+                </span>
+            </div>
+            <div class="profile-section-body">
+                <form method="post" action="{% url 'security:profile' %}" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="personal" />
+
+                    {% if personal_form.non_field_errors %}
+                    <div style="background:rgba(139,38,53,.07);border:1px solid rgba(139,38,53,.25);border-left:3px solid var(--danger);border-radius:var(--radius-sm);padding:.8rem 1rem;font-size:.82rem;color:var(--danger);margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:.65rem;">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <div>{% for e in personal_form.non_field_errors %}{{ e }}{% endfor %}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="profile-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="id_first_name">
+                                Nombres <span class="req">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="bi bi-person input-icon"></i>
+                                <input type="text" id="id_first_name" name="first_name"
+                                    class="form-control {% if personal_form.first_name.errors %}is-invalid{% endif %}"
+                                    value="{{ personal_form.first_name.value|default:user.first_name }}"
+                                    placeholder="Nombres" required />
+                            </div>
+                            {% if personal_form.first_name.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in personal_form.first_name.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_last_name">
+                                Apellidos <span class="req">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="bi bi-person input-icon"></i>
+                                <input type="text" id="id_last_name" name="last_name"
+                                    class="form-control {% if personal_form.last_name.errors %}is-invalid{% endif %}"
+                                    value="{{ personal_form.last_name.value|default:user.last_name }}"
+                                    placeholder="Apellidos" required />
+                            </div>
+                            {% if personal_form.last_name.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in personal_form.last_name.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_email">
+                                Correo electrónico <span class="req">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="bi bi-envelope input-icon"></i>
+                                <input type="email" id="id_email" name="email"
+                                    class="form-control {% if personal_form.email.errors %}is-invalid{% endif %}"
+                                    value="{{ personal_form.email.value|default:user.email }}"
+                                    placeholder="correo@despacho.com" required />
+                            </div>
+                            {% if personal_form.email.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in personal_form.email.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_ci">Cédula de Identidad</label>
+                            <div class="input-wrap">
+                                <i class="bi bi-card-text input-icon"></i>
+                                <input type="text" id="id_ci" name="ci"
+                                    class="form-control {% if personal_form.ci.errors %}is-invalid{% endif %}"
+                                    value="{{ personal_form.ci.value|default:user.ci }}"
+                                    placeholder="0999999999"
+                                    maxlength="20" />
+                            </div>
+                            {% if personal_form.ci.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in personal_form.ci.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_telefono">Teléfono</label>
+                            <div class="input-wrap">
+                                <i class="bi bi-telephone input-icon"></i>
+                                <input type="tel" id="id_telefono" name="telefono"
+                                    class="form-control"
+                                    value="{{ personal_form.telefono.value|default:user.telefono }}"
+                                    placeholder="+593 99 000 0000" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_username">Usuario</label>
+                            <div class="input-wrap">
+                                <i class="bi bi-at input-icon"></i>
+                                <input type="text" id="id_username_ro" name=""
+                                    class="form-control" readonly
+                                    value="{{ user.username }}" />
+                            </div>
+                            <span class="form-hint">El nombre de usuario no puede modificarse.</span>
+                        </div>
+
+                        <div class="form-group span-full">
+                            <label class="form-label" for="id_direccion">Dirección</label>
+                            <div class="input-wrap">
+                                <i class="bi bi-geo-alt input-icon"></i>
+                                <input type="text" id="id_direccion" name="direccion"
+                                    class="form-control"
+                                    value="{{ personal_form.direccion.value|default:user.direccion }}"
+                                    placeholder="Dirección profesional o institucional" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-bar">
+                        <button type="reset" class="btn btn-outline btn-sm">
+                            <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {# ── Password change ── #}
+        <div class="profile-section">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title">
+                    <i class="bi bi-shield-lock"></i> Cambiar Contraseña
+                </h2>
+            </div>
+            <div class="profile-section-body">
+                <form method="post" action="{% url 'security:profile' %}" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="password" />
+
+                    {% if password_form.non_field_errors %}
+                    <div style="background:rgba(139,38,53,.07);border:1px solid rgba(139,38,53,.25);border-left:3px solid var(--danger);border-radius:var(--radius-sm);padding:.8rem 1rem;font-size:.82rem;color:var(--danger);margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:.65rem;">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <div>{% for e in password_form.non_field_errors %}{{ e }}{% endfor %}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="profile-grid">
+                        <div class="form-group span-full">
+                            <label class="form-label" for="id_old_password">
+                                Contraseña actual <span class="req">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="bi bi-lock input-icon"></i>
+                                <input type="password" id="id_old_password" name="old_password"
+                                    class="form-control has-toggle {% if password_form.old_password.errors %}is-invalid{% endif %}"
+                                    placeholder="Contraseña actual" autocomplete="current-password" />
+                                <button type="button" class="pw-toggle" data-target="id_old_password" aria-label="Mostrar/ocultar">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if password_form.old_password.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in password_form.old_password.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_new_password1">
+                                Nueva contraseña <span class="req">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="bi bi-lock input-icon"></i>
+                                <input type="password" id="id_new_password1" name="new_password1"
+                                    class="form-control has-toggle {% if password_form.new_password1.errors %}is-invalid{% endif %}"
+                                    placeholder="Mínimo 8 caracteres"
+                                    autocomplete="new-password"
+                                    id="id_new_password1" />
+                                <button type="button" class="pw-toggle" data-target="id_new_password1" aria-label="Mostrar/ocultar">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="pw-strength-bar">
+                                <div class="pw-strength-fill" id="pwStrengthFill"></div>
+                            </div>
+                            <div class="pw-strength-text" id="pwStrengthText"></div>
+                            {% if password_form.new_password1.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in password_form.new_password1.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_new_password2">
+                                Confirmar contraseña <span class="req">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <i class="bi bi-lock input-icon"></i>
+                                <input type="password" id="id_new_password2" name="new_password2"
+                                    class="form-control has-toggle {% if password_form.new_password2.errors %}is-invalid{% endif %}"
+                                    placeholder="Repita la nueva contraseña"
+                                    autocomplete="new-password" />
+                                <button type="button" class="pw-toggle" data-target="id_new_password2" aria-label="Mostrar/ocultar">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            {% if password_form.new_password2.errors %}
+                            <div class="form-error"><i class="bi bi-exclamation-circle"></i> {% for e in password_form.new_password2.errors %}{{ e }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-actions-bar">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-shield-check"></i> Actualizar contraseña
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {# ── Recent activity ── #}
+        <div class="profile-section">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title">
+                    <i class="bi bi-clock-history"></i> Actividad Reciente
+                </h2>
+            </div>
+            <div class="profile-section-body">
+                <div class="activity-list">
+                    {% for act in recent_activity %}
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background:rgba(13,27,42,.07);">
+                            <i class="bi bi-{{ act.icon|default:'circle' }}" style="color:var(--navy);font-size:.85rem;"></i>
+                        </div>
+                        <div class="activity-info">
+                            <div class="activity-desc">{{ act.description }}</div>
+                            <div class="activity-meta">
+                                <span>{{ act.date|date:"d/m/Y H:i" }}</span>
+                                {% if act.extra %}<span>{{ act.extra }}</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="font-size:.83rem;color:var(--ash);text-align:center;padding:1.5rem 0;margin:0;">
+                        No hay actividad registrada aún.
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Danger zone ── #}
+        <div class="profile-section danger-zone">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title">
+                    <i class="bi bi-exclamation-triangle"></i> Zona de Riesgo
+                </h2>
+            </div>
+            <div class="profile-section-body">
+                <div class="danger-action">
+                    <div class="danger-action-text">
+                        <h4>Cerrar sesión en todos los dispositivos</h4>
+                        <p>Invalida todas las sesiones activas de su cuenta en este sistema.</p>
+                    </div>
+                    <form method="post" action="{% url 'security:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger-outline btn-sm">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>{# /profile-main #}
+
+</div>{# /profile-layout #}
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

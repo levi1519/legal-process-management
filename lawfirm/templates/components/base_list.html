@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+{#
+    COMPONENT: base_list.html
+    ─────────────────────────────────────────────────────────────
+    Blocks disponibles:
+      page_eyebrow       → Etiqueta superior del título (ej: "Gestión")
+      page_title         → Título principal de la página
+      page_subtitle      → Subtítulo / descripción breve
+      page_actions       → Botones en la cabecera (ej: "Nuevo registro")
+
+      search_form        → Formulario de búsqueda/filtros (override completo)
+      search_placeholder → Placeholder del input de búsqueda rápida
+
+      table_header       → <th> columnas del encabezado
+      table_body         → <tr> filas del cuerpo
+      table_empty        → Mensaje cuando no hay resultados
+
+      pagination         → Override del bloque de paginación
+      list_extra         → Contenido adicional debajo de la tabla
+    ─────────────────────────────────────────────────────────────
+#}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Page header ── #}
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">{% block page_eyebrow %}Listado{% endblock %}</span>
+        <h1 class="page-title">{% block page_title %}Registros{% endblock %}</h1>
+        {% block page_subtitle_block %}
+        <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+        {% endblock %}
+    </div>
+    <div class="page-actions">
+        {% block page_actions %}{% endblock %}
+    </div>
+</div>
+
+{# ── Toolbar: search + filters ── #}
+{% block search_form %}
+<form method="get" class="list-toolbar" role="search">
+    <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input
+            type="search"
+            name="q"
+            value="{{ request.GET.q }}"
+            placeholder="{% block search_placeholder %}Buscar...{% endblock %}"
+            class="form-control"
+            aria-label="Buscar"
+        />
+    </div>
+    <div class="filter-bar">
+        {% block filters %}{% endblock %}
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">
+        <i class="bi bi-funnel"></i> Filtrar
+    </button>
+    {% if request.GET %}
+    <a href="{{ request.path }}" class="btn btn-outline btn-sm">
+        <i class="bi bi-x"></i> Limpiar
+    </a>
+    {% endif %}
+</form>
+{% endblock %}
+
+{# ── Table ── #}
+<div class="table-wrapper">
+    <table class="data-table" role="grid" aria-label="{% block table_aria_label %}Tabla de registros{% endblock %}">
+        <thead>
+            <tr>
+                {% block table_header %}
+                <th>Campo</th>
+                <th>Acciones</th>
+                {% endblock %}
+            </tr>
+        </thead>
+        <tbody>
+            {% block table_body %}
+            {% endblock %}
+
+            {% block table_empty_row %}
+            {% if object_list is not None and not object_list %}
+            <tr>
+                <td colspan="100">
+                    {% block table_empty %}
+                    <div class="table-empty">
+                        <i class="bi bi-inbox table-empty-icon"></i>
+                        <h3>Sin resultados</h3>
+                        <p>No se encontraron registros que coincidan con los criterios de búsqueda.</p>
+                        <a href="{{ request.path }}" class="btn btn-outline btn-sm">
+                            <i class="bi bi-arrow-counterclockwise"></i> Ver todos
+                        </a>
+                    </div>
+                    {% endblock %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endblock %}
+        </tbody>
+    </table>
+
+    {# ── Pagination ── #}
+    {% block pagination %}
+    {% if is_paginated %}
+    <div class="pagination-bar">
+        <span class="pagination-info">
+            Mostrando
+            <strong>{{ page_obj.start_index }}</strong>–<strong>{{ page_obj.end_index }}</strong>
+            de <strong>{{ paginator.count }}</strong> registros
+        </span>
+        <div class="pagination-links" role="navigation" aria-label="Paginación">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link" aria-label="Primera página">
+                <i class="bi bi-chevron-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link" aria-label="Página anterior">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="page-link active" aria-current="page">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link" aria-label="Página siguiente">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            <a href="?page={{ paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link" aria-label="Última página">
+                <i class="bi bi-chevron-double-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+
+</div>{# /table-wrapper #}
+
+{% block list_extra %}{% endblock %}
+
+{% endblock %}
