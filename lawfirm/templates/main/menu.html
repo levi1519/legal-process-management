@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Módulos del Sistema{% endblock %}
+{% block meta_description %}Panel de módulos del Sistema de Gestión Legal COIP.{% endblock %}
+
+{% block nav_menu %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep">/</span>
+<span class="current">Módulos</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">Sistema COIP</span>
+        <h1 class="page-title">Módulos del Sistema</h1>
+        <p class="page-subtitle">Seleccione un módulo para acceder a su gestión.</p>
+    </div>
+</div>
+
+<div class="modules-intro">
+    <h2>Panel de Control Legal</h2>
+    <p>
+        Acceda a cada uno de los módulos del sistema de gestión penal.
+        Los módulos están organizados por área funcional para facilitar
+        la navegación diaria del equipo legal.
+    </p>
+</div>
+
+<div class="modules-section">
+    <div class="modules-section-label">Gestión Procesal</div>
+    <div class="module-grid">
+        <a href="{% url 'penalcode:menu' %}" class="module-card">
+            <div class="module-card-icon icon-navy"><i class="bi bi-folder2-open"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Expedientes Penales</div>
+                <p class="module-card-desc">
+                    Gestión completa del ciclo procesal: apertura, seguimiento,
+                    etapas, plazos y cierre de casos.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.expedientes_total|default:"0" }} registros</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-info"><i class="bi bi-diagram-3"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Etapas Procesales</div>
+                <p class="module-card-desc">
+                    Control granular de cada fase del proceso penal con
+                    restricciones de unicidad por expediente.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.etapas_total|default:"0" }} registros</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-gold"><i class="bi bi-file-text"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Escritos</div>
+                <p class="module-card-desc">
+                    Registro de actuaciones procesales: demandas, contestaciones,
+                    alegatos y recursos.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.escritos_total|default:"0" }} registros</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-success"><i class="bi bi-paperclip"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Evidencias y Documentos</div>
+                <p class="module-card-desc">
+                    Almacenamiento y categorización de medios probatorios
+                    y documentación judicial digitalizada.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.evidencias_total|default:"0" }} archivos</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="modules-section">
+    <div class="modules-section-label">Personas</div>
+    <div class="module-grid">
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-navy"><i class="bi bi-person-badge"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Clientes</div>
+                <p class="module-card-desc">
+                    Registro de personas naturales que contratan servicios
+                    legales con datos de identificación y contacto.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.clientes|default:"0" }} registros</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-info"><i class="bi bi-people"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Sujetos Procesales</div>
+                <p class="module-card-desc">
+                    Procesados, víctimas, testigos y peritos involucrados
+                    en cada expediente penal.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.sujetos_total|default:"0" }} registros</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-gold"><i class="bi bi-briefcase"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Equipo Legal</div>
+                <p class="module-card-desc">
+                    Gestión de abogados asignados a cada expediente
+                    con roles y fechas de participación.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">{{ stats.abogados_total|default:"0" }} usuarios</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="modules-section">
+    <div class="modules-section-label">Catálogos del COIP</div>
+    <div class="module-grid">
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-danger"><i class="bi bi-book"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Tipos de Delito</div>
+                <p class="module-card-desc">
+                    Catálogo de delitos del COIP con artículo, plazos
+                    de investigación e instrucción.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">Catálogo</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card">
+            <div class="module-card-icon icon-navy"><i class="bi bi-list-check"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Procedimientos</div>
+                <p class="module-card-desc">
+                    Procedimientos ordinarios, abreviados, directos y expeditos
+                    según el COIP.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">Catálogo</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="#" class="module-card disabled">
+            <span class="module-badge-coming">Próximamente</span>
+            <div class="module-card-icon icon-gold"><i class="bi bi-geo-alt"></i></div>
+            <div class="module-card-content">
+                <div class="module-card-title">Geografía</div>
+                <p class="module-card-desc">
+                    Regiones, provincias y ciudades del Ecuador para
+                    determinar competencia territorial.
+                </p>
+            </div>
+            <div class="module-card-footer">
+                <span class="module-card-count">Catálogo</span>
+                <span class="module-card-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="system-info-bar">
+    <div class="sys-info-item">
+        <span class="sys-info-label">Sistema</span>
+        <span class="sys-info-value">LegalTech COIP</span>
+    </div>
+    <div class="sys-info-divider"></div>
+    <div class="sys-info-item">
+        <span class="sys-info-label">Versión</span>
+        <span class="sys-info-value">1.0.0 MVP</span>
+    </div>
+    <div class="sys-info-divider"></div>
+    <div class="sys-info-item">
+        <span class="sys-info-label">Marco legal</span>
+        <span class="sys-info-value">COIP Ecuador</span>
+    </div>
+    <div class="sys-info-divider"></div>
+    <div class="sys-info-item">
+        <span class="sys-info-label">Usuario activo</span>
+        <span class="sys-info-value">{{ user.username }}</span>
+    </div>
+    <div class="sys-info-divider"></div>
+    <div class="sys-info-item">
+        <span class="sys-info-label">Zona horaria</span>
+        <span class="sys-info-value">America/Guayaquil</span>
+    </div>
+</div>
+
+{% endblock %}

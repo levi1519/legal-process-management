@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{#
+    COMPONENT: base_delete.html
+    ─────────────────────────────────────────────────────────────
+    Blocks disponibles:
+      page_eyebrow        → Etiqueta superior del título
+      page_title          → Título de la página
+
+      delete_icon         → Ícono de Bootstrap Icons (default: trash3)
+      delete_title        → Título del panel de confirmación
+      delete_description  → Párrafo de advertencia
+      delete_object_label → Etiqueta del objeto a eliminar (ej: "Expediente")
+      delete_object_value → Representación del objeto (ej: {{ object }})
+      delete_extra_info   → Información adicional (registros relacionados, etc.)
+      delete_confirm_label→ Texto del botón de confirmación
+      delete_cancel_url   → URL del botón cancelar
+    ─────────────────────────────────────────────────────────────
+#}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/delete.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Page header ── #}
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">{% block page_eyebrow %}Confirmación{% endblock %}</span>
+        <h1 class="page-title">{% block page_title %}Eliminar Registro{% endblock %}</h1>
+    </div>
+</div>
+
+{# ── Delete card ── #}
+<div class="delete-layout">
+    <div class="delete-card">
+
+        {# Header #}
+        <div class="delete-card-header">
+            <div class="delete-icon-wrap">
+                <i class="bi bi-{% block delete_icon %}trash3{% endblock %}"></i>
+            </div>
+            <div class="delete-header-text">
+                <h2>{% block delete_title %}¿Eliminar este registro?{% endblock %}</h2>
+                <p>{% block delete_description %}
+                    Esta acción es permanente y no puede deshacerse.
+                    Verifique la información antes de continuar.
+                {% endblock %}</p>
+            </div>
+        </div>
+
+        {# Body #}
+        <div class="delete-card-body">
+
+            {# Object preview #}
+            <div class="delete-object-preview">
+                <i class="bi bi-file-earmark-text"></i>
+                <div>
+                    <div class="delete-object-label">{% block delete_object_label %}Registro{% endblock %}</div>
+                    <div class="delete-object-value">{% block delete_object_value %}{{ object }}{% endblock %}</div>
+                </div>
+            </div>
+
+            {# Related records / extra warnings #}
+            {% block delete_extra_info %}{% endblock %}
+
+            {# Form #}
+            <form method="post">
+                {% csrf_token %}
+                {% block delete_form_extra %}{% endblock %}
+
+                <div class="delete-actions">
+                    <a href="{% block delete_cancel_url %}javascript:history.back(){% endblock %}" class="btn btn-outline">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash3"></i>
+                        {% block delete_confirm_label %}Eliminar{% endblock %}
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

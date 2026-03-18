@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inicio{% endblock %}
+{% block meta_description %}Panel principal del Sistema de Gestión Legal COIP — Ecuador{% endblock %}
+
+{% block nav_home %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep">/</span>
+<span class="current">Inicio</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="home-hero">
+    <div class="home-hero-content">
+        <span class="home-hero-eyebrow">Sistema de Gestión Legal — COIP Ecuador</span>
+        <h1 class="home-hero-title">Bienvenido, {{ user.get_full_name|default:user.username }}</h1>
+        <p class="home-hero-subtitle">
+            Administre expedientes penales, controle plazos procesales y gestione
+            la documentación judicial desde un único panel centralizado.
+        </p>
+        <div class="home-hero-actions">
+            <a href="{% url 'core:menu' %}" class="btn btn-gold">
+                <i class="bi bi-grid-3x3-gap"></i> Ver módulos
+            </a>
+            <a href="#" class="btn btn-outline">
+                <i class="bi bi-folder2-open"></i> Nuevo expediente
+            </a>
+        </div>
+    </div>
+</div>
+
+<section class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Expedientes activos</span>
+            <div class="stat-icon"><i class="bi bi-folder2-open"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.expedientes_activos|default:"—" }}</div>
+        <div class="stat-delta"><i class="bi bi-play-circle"></i> En curso</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Por prescribir</span>
+            <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+        </div>
+        <div class="stat-value" style="color:var(--warning);">{{ stats.por_prescribir|default:"—" }}</div>
+        <div class="stat-delta"><i class="bi bi-exclamation-triangle"></i> Próximos 30 días</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Clientes</span>
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.clientes|default:"—" }}</div>
+        <div class="stat-delta"><i class="bi bi-person-check"></i> Registrados</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Escritos este mes</span>
+            <div class="stat-icon"><i class="bi bi-file-text"></i></div>
+        </div>
+        <div class="stat-value">{{ stats.escritos_mes|default:"—" }}</div>
+        <div class="stat-delta"><i class="bi bi-calendar3"></i> Mes actual</div>
+    </div>
+</section>
+
+<div class="home-grid">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="section-title">Expedientes Recientes</h2>
+            <a href="#" class="btn btn-outline btn-sm">Ver todos</a>
+        </div>
+        <div class="table-responsive">
+            <table class="mini-table">
+                <thead>
+                    <tr>
+                        <th>N.° Juicio</th>
+                        <th>Cliente</th>
+                        <th>Delito</th>
+                        <th>Estado</th>
+                        <th>Apertura</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in expedientes_recientes %}
+                    <tr>
+                        <td><span class="text-mono text-sm">{{ exp.numero_juicio|default:"Sin número" }}</span></td>
+                        <td>{{ exp.cliente.get_full_name }}</td>
+                        <td><span class="text-sm text-ash">{{ exp.tipodelito.nombre }}</span></td>
+                        <td>
+                            <span class="badge
+                                {% if exp.estado == 'juicio' %}badge-danger
+                                {% elif exp.estado == 'instruccion_fiscal' %}badge-warning
+                                {% elif exp.estado == 'archivado' %}badge-ash
+                                {% elif exp.estado == 'sentencia' %}badge-success
+                                {% else %}badge-gold{% endif %}">
+                                {{ exp.get_estado_display }}
+                            </span>
+                        </td>
+                        <td><span class="text-mono text-xs text-ash">{{ exp.fecha_apertura|date:"d/m/Y" }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center" style="padding:2rem; color:var(--ash);">
+                            No hay expedientes registrados aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="widget-stack">
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="section-title">Acceso rápido</h3>
+            </div>
+            <div class="widget-body">
+                <div class="quick-links">
+                    <a href="#" class="quick-link">
+                        <i class="bi bi-folder-plus"></i> Nuevo expediente
+                    </a>
+                    <a href="#" class="quick-link">
+                        <i class="bi bi-person-plus"></i> Nuevo cliente
+                    </a>
+                    <a href="#" class="quick-link">
+                        <i class="bi bi-file-earmark-plus"></i> Nuevo escrito
+                    </a>
+                    <a href="#" class="quick-link">
+                        <i class="bi bi-paperclip"></i> Nueva evidencia
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="section-title">Plazos próximos</h3>
+                <span class="badge badge-danger">{{ deadlines|length|default:"0" }}</span>
+            </div>
+            <div class="widget-body">
+                <div class="deadline-list">
+                    {% for d in deadlines %}
+                    <div class="deadline-item">
+                        <div class="deadline-dot {% if d.days_left <= 7 %}urgent{% elif d.days_left <= 15 %}soon{% else %}normal{% endif %}"></div>
+                        <div class="deadline-info">
+                            <div class="deadline-case">{{ d.numero_juicio|default:"Exp. sin número" }}</div>
+                            <div class="deadline-date">{{ d.prescripcion_fecha_limite|date:"d/m/Y" }} — {{ d.days_left }} días</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-sm text-ash" style="padding:.5rem 0; margin:0;">
+                        Sin plazos próximos.
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

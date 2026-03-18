@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{#
+    COMPONENT: base_form.html
+    ─────────────────────────────────────────────────────────────
+    Blocks disponibles:
+      page_eyebrow       → Etiqueta superior del título
+      page_title         → Título del formulario
+      page_subtitle      → Descripción breve
+
+      form_card_title    → Título dentro de la tarjeta del formulario
+      form_fields        → Campos del formulario (REQUERIDO)
+      form_actions       → Botones de acción (override completo)
+      form_cancel_url    → URL del botón cancelar (default: back)
+      form_submit_label  → Texto del botón submit (default: "Guardar")
+
+      form_aside         → Columna lateral derecha (notas, ayuda, etc.)
+      form_extra         → Contenido adicional debajo del formulario
+    ─────────────────────────────────────────────────────────────
+#}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/form.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Page header ── #}
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">{% block page_eyebrow %}Formulario{% endblock %}</span>
+        <h1 class="page-title">{% block page_title %}Registro{% endblock %}</h1>
+        {% block page_subtitle_block %}
+        <p class="page-subtitle">{% block page_subtitle %}Complete los campos requeridos y guarde los cambios.{% endblock %}</p>
+        {% endblock %}
+    </div>
+    <div class="page-actions">
+        {% block page_actions %}{% endblock %}
+    </div>
+</div>
+
+{# ── Error summary (non-field errors) ── #}
+{% if form.non_field_errors %}
+<div class="error-summary" role="alert">
+    <div class="error-summary-title">
+        <i class="bi bi-exclamation-circle"></i> Errores en el formulario
+    </div>
+    <ul>
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{# ── Main layout ── #}
+<div class="form-layout {% block form_layout_class %}{% endblock %}">
+
+    {# ── Form card ── #}
+    <div class="card form-card">
+        <div class="card-header">
+            <h2 class="card-title">{% block form_card_title %}Datos del Registro{% endblock %}</h2>
+            {% block form_card_actions %}{% endblock %}
+        </div>
+        <div class="card-body">
+
+            <form
+                method="post"
+                action="{% block form_action %}{% endblock %}"
+                enctype="{% block form_enctype %}application/x-www-form-urlencoded{% endblock %}"
+                novalidate
+            >
+                {% csrf_token %}
+                {% block form_hidden %}{% endblock %}
+
+                {# ── Fields ── #}
+                {% block form_fields %}
+                {#
+                    Override this block in child templates.
+                    Example structure:
+                    <div class="fieldset-group">
+                        <div class="fieldset-legend">Información General</div>
+                        <div class="form-grid">
+                            {% for field in form %}
+                            <div class="form-group {% if field.field.required %}required{% endif %}">
+                                <label class="form-label" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                <span class="form-hint">{{ field.help_text }}</span>
+                                {% endif %}
+                                {% if field.errors %}
+                                {% for error in field.errors %}
+                                <span class="form-error">{{ error }}</span>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                #}
+                {% endblock %}
+
+                {# ── Actions ── #}
+                {% block form_actions %}
+                <div class="form-actions-bar">
+                    <p class="required-legend flex-1">
+                        Los campos marcados con <span>*</span> son obligatorios.
+                    </p>
+                    <a href="{% block form_cancel_url %}javascript:history.back(){% endblock %}" class="btn btn-outline">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        {% block form_submit_label %}Guardar{% endblock %}
+                    </button>
+                </div>
+                {% endblock %}
+
+            </form>
+        </div>
+    </div>
+
+    {# ── Aside ── #}
+    {% block form_aside %}{% endblock %}
+
+</div>{# /form-layout #}
+
+{% block form_extra %}{% endblock %}
+
+{% endblock %}

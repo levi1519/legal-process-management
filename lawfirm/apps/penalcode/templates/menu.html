@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Módulo Penal{% endblock %}
+{% block meta_description %}Panel del módulo penal para gestionar expedientes, clientes, escritos y catálogos.{% endblock %}
+
+{% block nav_expedientes %}active{% endblock %}
+
+{% block breadcrumb %}
+<span class="sep">/</span>
+<span class="current">Módulo Penal</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'penalcode/css/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div class="page-title-group">
+        <span class="page-eyebrow">Módulo Penal</span>
+        <h1 class="page-title">Panel Penal COIP</h1>
+        <p class="page-subtitle">Accede a las funcionalidades claves del módulo penal.</p>
+    </div>
+</div>
+
+<div class="penal-modules-grid">
+
+    <a href="{% url 'penalcode:menu' %}" class="module-card">
+        <div class="module-card-icon icon-primary"><i class="bi bi-folder2-open"></i></div>
+        <div class="module-card-content">
+            <div class="module-card-title">Expedientes</div>
+            <p>Gestione casos penales, plazos, estados y documentos de cada expediente.</p>
+        </div>
+        <div class="module-card-footer">
+            <span>{{ stats.expedientes|default:"0" }} registros</span>
+            <i class="bi bi-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="#" class="module-card">
+        <div class="module-card-icon icon-info"><i class="bi bi-people"></i></div>
+        <div class="module-card-content">
+            <div class="module-card-title">Clientes</div>
+            <p>Registro de clientes y datos personales para cada caso penal.</p>
+        </div>
+        <div class="module-card-footer">
+            <span>{{ stats.clientes|default:"0" }} registros</span>
+            <i class="bi bi-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="#" class="module-card">
+        <div class="module-card-icon icon-warning"><i class="bi bi-file-text"></i></div>
+        <div class="module-card-content">
+            <div class="module-card-title">Escritos</div>
+            <p>Captura de escritos procesales, notificaciones y recursos judiciales.</p>
+        </div>
+        <div class="module-card-footer">
+            <span>{{ stats.escritos|default:"0" }} registros</span>
+            <i class="bi bi-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="#" class="module-card">
+        <div class="module-card-icon icon-success"><i class="bi bi-paperclip"></i></div>
+        <div class="module-card-content">
+            <div class="module-card-title">Evidencias</div>
+            <p>Administre documentos y pruebas adjuntadas a los expedientes.</p>
+        </div>
+        <div class="module-card-footer">
+            <span>{{ stats.evidencias|default:"0" }} archivos</span>
+            <i class="bi bi-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="#" class="module-card">
+        <div class="module-card-icon icon-danger"><i class="bi bi-book"></i></div>
+        <div class="module-card-content">
+            <div class="module-card-title">Catálogos</div>
+            <p>Tipos de delito, procedimientos y roles procesales del COIP.</p>
+        </div>
+        <div class="module-card-footer">
+            <span>{{ stats.delitos|default:"0" }} delitos</span>
+            <i class="bi bi-arrow-right"></i>
+        </div>
+    </a>
+
+</div>
+
+<div class="penal-module-stats">
+    <h2>Indicadores</h2>
+    <ul>
+        <li>Expedientes abiertos: {{ stats.expedientes_abiertos|default:"0" }}</li>
+        <li>Expedientes con prescripción < 30d: {{ stats.vencimientos_30d|default:"0" }}</li>
+    </ul>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'penalcode/js/menu.js' %}"></script>
+{% endblock %}
